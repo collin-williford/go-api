@@ -23,6 +23,7 @@ func main() {
 	router.GET("/accounts", getAccounts)
 	router.GET("/accounts/:accountNumber", getAccountByNumber)
 	router.POST("/accounts", postAccounts)
+	router.DELETE("/accounts/:accountNumber", deleteAccountByNumber)
 
 	router.Run("localhost:8080")
 }
@@ -52,4 +53,16 @@ func getAccountByNumber(c *gin.Context) {
 		}
 	}
 	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "Account number not found"})
+}
+
+func deleteAccountByNumber(c *gin.Context) {
+	accountNumber := c.Param("accountNumber")
+
+	for index, num := range accounts {
+		if num.AccountNumber == accountNumber {
+			accounts = append(accounts[:index], accounts[index+1])
+		}
+	}
+
+	c.IndentedJSON(http.StatusAccepted, accountNumber)
 }
