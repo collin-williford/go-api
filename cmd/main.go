@@ -24,6 +24,7 @@ func main() {
 	router.GET("/accounts/:accountNumber", getAccountByNumber)
 	router.POST("/accounts", postAccounts)
 	router.DELETE("/accounts/:accountNumber", deleteAccountByNumber)
+	router.PUT("/accounts/:accountNumber", updateAccountByNumber)
 
 	router.Run("localhost:8080")
 }
@@ -55,14 +56,48 @@ func getAccountByNumber(c *gin.Context) {
 	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "Account number not found"})
 }
 
+func updateAccountByNumber(c *gin.Context) {
+	accountNumber := c.Param("accountNumber")
+	var updatedAccount Account
+
+	if err := c.ShouldBindJSON(&updatedAccount); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	for i, account := range accounts {
+		if account.AccountNumber == accountNumber {
+			if updatedAccount.AccountNumber != "" {
+				accounts[i].AccountNumber = updatedAccount.AccountNumber
+			}
+			if updatedAccount.Balance != 0 {
+				accounts[i].Balance = updatedAccount.Balance
+			}
+			if updatedAccount.BankName != "" {
+				accounts[i].BankName = updatedAccount.BankName
+			}
+			if updatedAccount.RoutingNumber != 0 {
+				accounts[i].RoutingNumber = updatedAccount.RoutingNumber
+			}
+			if updatedAccount.Type != "" {
+				accounts[i].Type = updatedAccount.Type
+			}
+			c.IndentedJSON(http.StatusOK, gin.H{"message": "Account updated"})
+			return
+		}
+	}
+	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "Account Not found"})
+}
+
 func deleteAccountByNumber(c *gin.Context) {
 	accountNumber := c.Param("accountNumber")
 
-	for index, num := range accounts {
-		if num.AccountNumber == accountNumber {
-			accounts = append(accounts[:index], accounts[index+1])
+	for index, val := range accounts {
+		if val.AccountNumber == accountNumber {
+			accounts = append(accounts[:index], accounts[index+1:]...)
+			c.IndentedJSON(http.StatusAccepted, gin.H{"message": "Account successfully removed"})
 		}
 	}
 
-	c.IndentedJSON(http.StatusAccepted, accountNumber)
+	c.IndentedJSON(http.StatusAccepted, gin.H{"message": "Account cannot be found"})
 }
