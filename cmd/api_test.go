@@ -1,11 +1,10 @@
 package main
 
 import (
-	"fmt"
-	"github.com/gin-gonic/gin"
-	//"github.com/stretchr/testify/assert"
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"github.com/gin-gonic/gin"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -95,7 +94,57 @@ func TestPUT(t *testing.T) {
 	if response.Code == http.StatusOK {
 		t.Logf("Expected to get status %d is same as %d\n", http.StatusOK, response.Code)
 	} else {
-		t.Fatalf("Expected to get status %d but instead god %d\n", http.StatusOK, response.Code)
+		t.Fatalf("Expected to get status %d but instead got %d\n", http.StatusOK, response.Code)
 	}
 
+}
+
+func TestGetByAccountNum(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	router := gin.Default()
+	router.GET("/accounts/:accountNumber", getAccountByNumber)
+
+	accountNum := "9988445"
+
+	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("/accounts/%s", accountNum), nil)
+	if err != nil {
+		t.Fatalf("Couldn't create request: %v\n", err)
+	}
+
+	response := httptest.NewRecorder()
+
+	router.ServeHTTP(response, req)
+	fmt.Println(response.Body)
+
+	if response.Code == http.StatusOK {
+		t.Logf("Expected to get status %d is same as %d\n", http.StatusOK, response.Code)
+	} else {
+		t.Fatalf("Expected to get status %d but instead got %d\n", http.StatusOK, response.Code)
+	}
+}
+
+func TestDelete(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	router := gin.Default()
+	router.DELETE("/accounts/:accountNumber", deleteAccountByNumber)
+
+	accountNum := "9988445"
+
+	req, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("/accounts/%s", accountNum), nil)
+	if err != nil {
+		t.Fatalf("Couldn't create request: %v\n", err)
+	}
+
+	response := httptest.NewRecorder()
+
+	router.ServeHTTP(response, req)
+	fmt.Println(response.Body)
+
+	if response.Code == http.StatusAccepted {
+		t.Logf("Expected to get status %d is same as %d\n", http.StatusAccepted, response.Code)
+	} else {
+		t.Fatalf("Expected to get status %d but instead got %d\n", http.StatusAccepted, response.Code)
+	}
 }
