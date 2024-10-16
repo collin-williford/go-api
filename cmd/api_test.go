@@ -33,6 +33,11 @@ func TestGET(t *testing.T) {
 	}
 }
 
+func TestGetFail(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+}
+
 func TestPOST(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
